@@ -73,6 +73,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { authService } from '@/services/authService'
 
 const router = useRouter()
 
@@ -88,12 +89,23 @@ const loading = ref(false)
 async function handleRegister() {
   loading.value = true
   try {
-    // TODO: تنفيذ تسجيل المستخدم
-    console.log('Register data:', form.value)
+    const response = await authService.register(form.value)
+    // إذا نجح التسجيل
+    alert('تم إنشاء الحساب بنجاح! يمكنك تسجيل الدخول الآن.')
     router.push('/login')
   } catch (error) {
-    console.error('Registration failed:', error)
-    alert('فشل إنشاء الحساب. حاول مرة أخرى.')
+    // معالجة الأخطاء القادمة من السيرفر
+    let message = 'فشل إنشاء الحساب. حاول مرة أخرى.'
+    if (error.response && error.response.data && error.response.data.message) {
+      message = error.response.data.message
+    } else if (error.response && error.response.data && typeof error.response.data === 'object') {
+      // عرض أول خطأ من الأخطاء التفصيلية
+      const errors = error.response.data.errors
+      if (errors) {
+        message = Object.values(errors)[0][0]
+      }
+    }
+    alert(message)
   } finally {
     loading.value = false
   }
