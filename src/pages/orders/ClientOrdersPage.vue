@@ -10,6 +10,3 @@ export default {
   name: 'ClientOrdersPage',
 };
 </script>
-
-<style scoped>
-</style>
