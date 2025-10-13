@@ -23,7 +23,24 @@
           <span class="font-bold">{{ service.average_rating }}</span>
           <span class="text-gray-500">({{ service.reviews_count }} تقييم)</span>
         </div>
-        <button class="btn-primary w-full py-2">طلب الخدمة</button>
+        <div class="mt-6">
+          <button class="btn-primary w-full py-2" :disabled="loading" @click="showOrderModal = true">
+            طلب الخدمة
+          </button>
+        </div>
+        <!-- نافذة منبثقة لكتابة الملاحظة -->
+        <div v-if="showOrderModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h3 class="text-lg font-bold mb-4 text-center">كتابة ملاحظة للطلب</h3>
+            <textarea v-model="notes" placeholder="اكتب ملاحظتك هنا..." class="w-full border rounded-lg p-2 mb-3" rows="3"></textarea>
+            <div class="flex gap-2 mt-4">
+              <button class="btn-primary flex-1" :disabled="loading" @click="handleOrder">
+                {{ loading ? 'جاري إرسال الطلب...' : 'تأكيد الطلب' }}
+              </button>
+              <button class="btn-secondary flex-1" @click="showOrderModal = false">إلغاء</button>
+            </div>
+          </div>
+        </div>
       </div>
       <div v-else class="text-center py-12 text-gray-500">جاري تحميل تفاصيل الخدمة...</div>
 
@@ -44,22 +61,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { servicesService } from '@/services/servicesService'
+import api from '@/services/api'
 
 const route = useRoute()
+const router = useRouter()
 const service = ref(null)
+const showOrderModal = ref(false)
+const notes = ref('')
+const loading = ref(false)
 
 onMounted(async () => {
   try {
     const id = route.params.id
-    // جلب تفاصيل الخدمة من endpoint الصحيح للعميل
     if (typeof servicesService.getClientService === 'function') {
       const response = await servicesService.getClientService(id)
       service.value = response.data
     } else {
-      // fallback: جلب من endpoint العام
       const response = await servicesService.getService(id)
       service.value = response.data
     }
@@ -67,4 +87,24 @@ onMounted(async () => {
     console.error('فشل جلب تفاصيل الخدمة:', error)
   }
 })
+
+async function handleOrder() {
+  if (!service.value) return
+  loading.value = true
+  try {
+    await api.post('/client/orders', {
+      service_id: service.value.id,
+      notes: notes.value
+    })
+  showOrderModal.value = false
+  alert('تم إرسال الطلب بنجاح!')
+  await nextTick()
+  router.push('/client/orders')
+  } catch (error) {
+    alert('فشل إرسال الطلب. حاول مرة أخرى.')
+    console.error('Order error:', error)
+  } finally {
+    loading.value = false
+  }
+}
 </script>

@@ -24,19 +24,19 @@ const routes = [
     path: '/services',
     name: 'Services',
     component: () => import('@/pages/services/ServicesPage.vue'),
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true , role: 'client' }
   },
   {
     path: '/services/:id',
     name: 'ServiceDetails',
     component: () => import('@/pages/services/ServiceDetailsPage.vue'),
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true , role: 'client' }
   },
   {
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import('@/pages/dashboard/DashboardPage.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true , role: 'admin' }
   },
   {
     path: '/client/orders',

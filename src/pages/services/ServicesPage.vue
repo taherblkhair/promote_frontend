@@ -1,13 +1,15 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <header class="bg-white shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-6">
-          <h1 class="text-2xl font-bold text-gray-900">الخدمات المتاحة</h1>
-          <router-link to="/" class="btn-secondary">العودة للرئيسية</router-link>
-        </div>
-      </div>
-    </header>
+    <AppHeader 
+      title="بروموت"
+      subtitle="الخدمات المتاحة والمتوفرة للعملاء"
+    >
+      <template #icon>
+        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+      </template>
+    </AppHeader>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -32,6 +34,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { servicesService } from '@/services/servicesService'
+import AppHeader from '@/components/AppHeader.vue'
 
 const services = ref([])
 

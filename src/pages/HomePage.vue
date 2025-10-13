@@ -28,6 +28,11 @@
         <router-link to="/services" class="btn-primary text-lg px-8 py-3">
           استعرض الخدمات
         </router-link>
+        <div class="mt-6" v-if="auth.isAuthenticated">
+          <router-link to="/client/orders" class="btn-secondary text-lg px-8 py-3">
+            طلباتي
+          </router-link>
+        </div>
       </div>
     </main>
   </div>
