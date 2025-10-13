@@ -29,5 +29,15 @@ export const servicesService = {
   // الحصول على خدمات المزود
   getProviderServices() {
     return api.get('/services/provider')
+  },
+
+  // الحصول على خدمات العميل
+  getClientServices() {
+    return api.get('/client/services')
+  },
+
+  // الحصول على تفاصيل خدمة واحدة للعميل
+  getClientService(id) {
+    return api.get(`/client/services/${id}`)
   }
 }

@@ -5,8 +5,13 @@
         <div class="flex justify-between items-center py-6">
           <h1 class="text-2xl font-bold text-gray-900">منصة بروموت</h1>
           <div class="flex space-x-4 space-x-reverse">
-            <router-link to="/login" class="btn-secondary">تسجيل الدخول</router-link>
-            <router-link to="/register" class="btn-primary">إنشاء حساب</router-link>
+            <template v-if="!auth.isAuthenticated">
+              <router-link to="/login" class="btn-secondary">تسجيل الدخول</router-link>
+              <router-link to="/register" class="btn-primary">إنشاء حساب</router-link>
+            </template>
+            <template v-else>
+              <button @click="handleLogout" class="btn-secondary">تسجيل خروج</button>
+            </template>
           </div>
         </div>
       </div>
@@ -29,5 +34,13 @@
 </template>
 
 <script setup>
-// الصفحة الرئيسية
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
+const auth = useAuthStore()
+const router = useRouter()
+
+function handleLogout() {
+  auth.logout()
+  router.push('/login')
+}
 </script>
