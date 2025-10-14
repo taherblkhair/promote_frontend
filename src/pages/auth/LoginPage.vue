@@ -74,19 +74,6 @@ const form = ref({
 const loading = ref(false)
 const errorMessage = ref('')
 
-// دوال التوجيه بناءً على الدور
-const getDashboardRoute = (role) => {
-  switch (role) {
-    case 'admin':
-      return '/admin/dashboard'
-    case 'provider':
-      return '/provider/dashboard'
-    case 'client':
-    default:
-      return '/'
-  }
-}
-
 async function handleLogin() {
   loading.value = true
   errorMessage.value = ''
@@ -94,25 +81,26 @@ async function handleLogin() {
   try {
     const userData = await authStore.login(form.value)
     
-    // التوجيه بناءً على دور المستخدم
-    const dashboardRoute = getDashboardRoute(userData.role)
-    router.push(dashboardRoute)
+    // التوجيه للصفحة الرئيسية المناسبة للدور
+    const homeRoute = getHomeRoute(userData.role)
+    router.push(homeRoute)
     
   } catch (error) {
-    console.error('Login failed:', error)
-    
-    // معالجة الأخطاء المختلفة
-    if (error.response?.status === 401) {
-      errorMessage.value = 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
-    } else if (error.response?.status === 422) {
-      errorMessage.value = 'البيانات المدخلة غير صالحة'
-    } else if (error.response?.status === 403) {
-      errorMessage.value = 'غير مسموح لك بالدخول إلى النظام'
-    } else {
-      errorMessage.value = 'حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.'
-    }
+    // معالجة الأخطاء...
   } finally {
     loading.value = false
+  }
+}
+
+function getHomeRoute(role) {
+  switch (role) {
+    case 'admin':
+      return '/admin'
+    case 'provider':
+      return '/provider'
+    case 'client':
+    default:
+      return '/home'
   }
 }
 </script>

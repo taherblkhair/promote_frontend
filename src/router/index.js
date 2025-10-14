@@ -9,12 +9,37 @@ const routes = [
     meta: { requiresAuth: false, guestOnly: true }
   },
   {
+    path: '/logout',
+    name: 'Logout',
+    beforeEnter: (to, from, next) => {
+      const authStore = useAuthStore()
+      if (typeof authStore.logout === 'function') {
+        authStore.logout()
+      }
+      
+    },
+    component: () => import('@/pages/LandingPage.vue')
+  },
+
+  {
     path: '/',
-    name: 'Home',
-    component: () => import('@/pages/HomePage.vue'),
-    meta: { requiresAuth: true }
+    name: 'Landing',
+    component: () => import('@/pages/LandingPage.vue'),
+    meta: { requiresAuth: false, guestOnly: true }
   },
   // مسارات العميل
+  {
+    path: '/home',
+    name: 'Home',
+    component: () => import('@/pages/client/ClientHome.vue'),
+    meta: { requiresAuth: true, allowedRoles: ['client'] }
+  },
+  {
+  path: '/profile',
+  name: 'Profile',
+  component: () => import('@/pages/client/ClientProfile.vue'),
+  meta: { requiresAuth: true, allowedRoles: ['client'] }
+  },
   {
     path: '/client/orders',
     name: 'ClientOrders',
@@ -35,9 +60,9 @@ const routes = [
     },
   // مسارات مقدم الخدمة
   {
-    path: '/provider/dashboard',
-    name: 'ProviderDashboard',
-    component: () => import('@/pages/provider/ProviderDashboard.vue'),
+    path: '/provider',
+    name: 'ProviderHome',
+    component: () => import('@/pages/provider/ProviderHome.vue'),
     meta: { requiresAuth: true, allowedRoles: ['provider'] }
   },
   {
@@ -46,13 +71,15 @@ const routes = [
     component: () => import('@/pages/services/ProviderServicesPage.vue'),
     meta: { requiresAuth: true, allowedRoles: ['provider'] }
   },
+
   // مسارات المديرf
   {
-    path: '/admin/dashboard',
-    name: 'AdminDashboard',
+    path: '/admin',
+    name: 'AdminHome',
     component: () => import('@/pages/admin/AdminDashboard.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['admin'] }
+    meta: { requiresAuth: true, allowedRoles: ['admin'], guestOnly: true }
   },
+  
   // مسار للصفحات غير الموجودة
   {
     path: '/:pathMatch(.*)*',
@@ -70,43 +97,41 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   
-  // إذا كانت الصفحة تتطلب مصادقة
   if (to.meta.requiresAuth) {
     if (!authStore.isAuthenticated) {
-      // إذا لم يكن مسجلاً دخول، توجيه لصفحة تسجيل الدخول
       next('/login')
     } else if (to.meta.allowedRoles) {
-      // التحقق من الصلاحيات إذا كانت محددة
       const userRole = authStore.userRole
       if (to.meta.allowedRoles.includes(userRole)) {
         next()
       } else {
-        // إذا لم يكن لديه الصلاحية، توجيه للصفحة الرئيسية المناسبة لدوره
-        const dashboardRoute = getDashboardRoute(userRole)
-        next(dashboardRoute)
+        // توجيه كل مستخدم لصفحة Home الخاصة بدوره
+        const homeRoute = getHomeRoute(userRole)
+        next(homeRoute)
       }
     } else {
       next()
     }
   } else if (to.meta.guestOnly && authStore.isAuthenticated) {
-    // إذا كان مسجلاً دخول وحاول الدخول لصفحة للزوار فقط
-    const dashboardRoute = getDashboardRoute(authStore.userRole)
-    next(dashboardRoute)
+    // إذا كان مسجلاً دخول، توجهه للصفحة الرئيسية المناسبة
+    const homeRoute = getHomeRoute(authStore.userRole)
+    next(homeRoute)
   } else {
     next()
   }
-})
+})  
+ 
 
 // دالة مساعدة للتوجيه
-function getDashboardRoute(role) {
+function getHomeRoute(role) {
   switch (role) {
     case 'admin':
       return '/admin/dashboard'
     case 'provider':
-      return '/provider/dashboard'
+      return '/provider'
     case 'client':
     default:
-      return '/'
+      return '/home'
   }
 }
 
