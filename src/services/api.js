@@ -1,34 +1,30 @@
 import axios from 'axios'
+import { useAuthStore } from '@/stores/auth'
 
-// تكوين Axins الأساسي
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',  
+  baseURL: 'http://127.0.0.1:8000/api',
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
   }
 })
 
-// Interceptor لإضافة التوكن
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('auth_token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
+// إضافة التوكن تلقائياً للطلبات
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
   }
-)
+  return config
+})
 
-// Interceptor لمعالجة الأخطاء
+// معالجة الأخطاء تلقائياً
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('auth_token')
+      // إذا كان الخطأ 401 (غير مصرح)، تسجيل الخروج
+      const authStore = useAuthStore()
+      authStore.logout()
       window.location.href = '/login'
     }
     return Promise.reject(error)

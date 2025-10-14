@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { authService } from '@/services/authService'
 import { ref, computed } from 'vue'
+import api from '@/services/api'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
@@ -8,42 +8,43 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => !!token.value)
   const userRole = computed(() => user.value?.role)
+  
+  const isAdmin = computed(() => userRole.value === 'admin')
+  const isClient = computed(() => userRole.value === 'client')
+  const isProvider = computed(() => userRole.value === 'provider')
 
   async function login(credentials) {
     try {
-      const response = await authService.login(credentials)
-      const { token: authToken, user: userData } = response.data
+      const response = await api.post('/login', credentials)
       
-      token.value = authToken
+      const { user: userData, token: authToken } = response.data
+      
       user.value = userData
+      token.value = authToken
       
       localStorage.setItem('auth_token', authToken)
+      localStorage.setItem('user_data', JSON.stringify(userData))
       
-      return response
+      return userData
     } catch (error) {
       throw error
     }
   }
 
-  async function logout() {
-    try {
-      await authService.logout()
-    } catch (error) {
-      console.error('Logout error:', error)
-    } finally {
-      token.value = null
-      user.value = null
-      localStorage.removeItem('auth_token')
-    }
+  function logout() {
+    user.value = null
+    token.value = null
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('user_data')
   }
 
-  async function fetchProfile() {
-    try {
-      const response = await authService.getProfile()
-      user.value = response.data
-      return response
-    } catch (error) {
-      throw error
+  function initialize() {
+    const savedToken = localStorage.getItem('auth_token')
+    const savedUser = localStorage.getItem('user_data')
+    
+    if (savedToken && savedUser) {
+      token.value = savedToken
+      user.value = JSON.parse(savedUser)
     }
   }
 
@@ -52,8 +53,11 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     isAuthenticated,
     userRole,
+    isAdmin,
+    isClient,
+    isProvider,
     login,
     logout,
-    fetchProfile
+    initialize
   }
 })
