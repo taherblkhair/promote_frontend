@@ -27,6 +27,12 @@ const routes = [
     component: () => import('@/pages/services/ServicesPage.vue'),
     meta: { requiresAuth: true, allowedRoles: ['client'] }
   },
+    {
+      path: '/services/:id',
+      name: 'ClientServiceDetailsAlt',
+      component: () => import('@/pages/services/ServiceDetailsPage.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['client'] }
+    },
   // مسارات مقدم الخدمة
   {
     path: '/provider/dashboard',
