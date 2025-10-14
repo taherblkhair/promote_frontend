@@ -13,15 +13,21 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="service in services" :key="service.id" class="card">
+        <div v-for="service in services" :key="service.id" class="card bg-white rounded-lg shadow p-5 flex flex-col justify-between">
           <router-link :to="`/services/${service.id}`">
             <img v-if="service.image" :src="service.image" alt="صورة الخدمة" class="w-full h-40 object-cover rounded-md mb-3" />
           </router-link>
-          <router-link :to="`/services/${service.id}`">
-            <h3 class="text-lg font-semibold text-gray-900 hover:underline cursor-pointer">{{ service.title }}</h3>
-          </router-link>
-          <p class="text-gray-600 mt-2">{{ service.description }}</p>
-          <div class="mt-4 flex justify-between items-center">
+          <div class="flex-1 flex flex-col">
+            <router-link :to="`/services/${service.id}`">
+              <h3 class="text-lg font-semibold text-gray-900 hover:underline cursor-pointer mb-2">{{ service.title }}</h3>
+            </router-link>
+            <p class="text-gray-600 mb-3">{{ service.description }}</p>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-primary-600 font-bold">{{ service.orders_count }}</span>
+              <span class="text-gray-500 text-sm">طلبات</span>
+            </div>
+          </div>
+          <div class="mt-3 flex justify-between items-center">
             <span class="text-primary-600 font-bold">{{ service.price }} ر.س</span>
             <router-link :to="`/services/${service.id}`" class="btn-primary text-sm">تفاصيل الخدمة</router-link>
           </div>
