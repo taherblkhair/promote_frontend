@@ -84,7 +84,7 @@
                   </h3>
                   <div class="flex items-center text-primary-600 font-bold text-lg">
                     <span>{{ order.service?.price || '0.00' }}</span>
-                    <span class="text-sm mr-1">ر.س</span>
+                    <span class="text-sm mr-1">د.ل</span>
                   </div>
                 </div>
               </div>

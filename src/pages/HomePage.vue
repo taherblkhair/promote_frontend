@@ -239,7 +239,7 @@ const statistics = computed(() => {
       },
       {
         label: 'إجمالي الإيرادات',
-        value: '٥٠٬٠٠٠ ر.س',
+        value: '٥٠٬٠٠٠ د.ل',
         borderColor: 'border-purple-500',
         bgColor: 'bg-purple-100',
         iconColor: 'text-purple-600',
@@ -273,7 +273,7 @@ const statistics = computed(() => {
       },
       {
         label: 'إجمالي الأرباح',
-        value: '٨٬٥٠٠ ر.س',
+        value: '٨٬٥٠٠ د.ل',
         borderColor: 'border-purple-500',
         bgColor: 'bg-purple-100',
         iconColor: 'text-purple-600',
