@@ -18,7 +18,11 @@ export const servicesService = {
 
   // تحديث خدمة
   updateService(id, serviceData) {
-    return api.put(`/services/${id}`, serviceData)
+    return api.post(`/provider/services/${id}`, serviceData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
   },
 
   // حذف خدمة

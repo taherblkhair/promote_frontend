@@ -23,14 +23,13 @@ export const providerService = {
   })
 },
 
-  // تحديث خدمة - استخدام PUT مباشرة
-  updateService(id, data) {
-    return api.put(`/provider/services/${id}`, data, {  
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })      
-    },
+    updateService(id, serviceData) {
+        return api.post(`/provider/services/${id}`, serviceData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+        })
+    }, 
 
 
   deleteService(id) {

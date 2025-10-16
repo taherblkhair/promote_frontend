@@ -53,15 +53,15 @@
           <!-- الوصف -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              وصف الخدمة <span class="text-red-500">*</span>
+              وصف الخدمة
             </label>
             <textarea
               v-model="formData.description"
               rows="4"
-              required
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
               placeholder="أدخل وصفاً مفصلاً للخدمة"
             ></textarea>
+            <p class="text-sm text-gray-500 mt-1">ملاحظة: الوصف لا يمكن تعديله حالياً عبر النظام</p>
           </div>
 
           <!-- التصنيف والسعر -->
@@ -69,12 +69,12 @@
             <!-- التصنيف -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                التصنيف <span class="text-red-500">*</span>
+                التصنيف
               </label>
               <select
                 v-model="formData.category"
-                required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500"
               >
                 <option value="">اختر التصنيف</option>
                 <option value="تسويق إلكتروني">تسويق إلكتروني</option>
@@ -109,7 +109,7 @@
               صورة الخدمة
             </label>
             <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-400 transition-colors duration-200">
-              <div v-if="!imagePreview && !serviceData.image_url">
+              <div v-if="!imagePreview && !serviceData.image">
                 <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
@@ -130,23 +130,26 @@
                 </button>
               </div>
               <div v-else>
-                <img :src="imagePreview || serviceData.image_url" alt="معاينة الصورة" class="w-32 h-32 object-cover rounded-lg mx-auto mb-4">
-                <button
-                  type="button"
-                  @click="removeImage"
-                  class="text-red-600 hover:text-red-700 text-sm font-medium mr-4"
-                >
-                  إزالة الصورة
-                </button>
-                <button
-                  type="button"
-                  @click="$refs.fileInput.click()"
-                  class="text-primary-600 hover:text-primary-700 text-sm font-medium"
-                >
-                  تغيير الصورة
-                </button>
+                <img :src="imagePreview || serviceData.image" alt="معاينة الصورة" class="w-32 h-32 object-cover rounded-lg mx-auto mb-4">
+                <div class="space-x-4">
+                  <button
+                    type="button"
+                    @click="removeImage"
+                    class="text-red-600 hover:text-red-700 text-sm font-medium"
+                  >
+                    إزالة الصورة
+                  </button>
+                  <button
+                    type="button"
+                    @click="$refs.fileInput.click()"
+                    class="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                  >
+                    تغيير الصورة
+                  </button>
+                </div>
               </div>
             </div>
+            <p class="text-sm text-gray-500 mt-1">اختياري - إذا لم تقم باختيار صورة جديدة سيتم الاحتفاظ بالصورة الحالية</p>
           </div>
 
           <!-- أزرار الإجراءات -->
@@ -196,9 +199,9 @@ const fileInput = ref(null)
 const serviceData = reactive({})
 const formData = reactive({
   title: '',
-  description: '',
-  category: '',
   price: '',
+  category: '',
+  description: '',
   image: null
 })
 
@@ -212,11 +215,12 @@ const loadService = async () => {
     Object.assign(serviceData, response.data)
     Object.assign(formData, {
       title: response.data.title,
-      description: response.data.description,
       category: response.data.category,
-      price: response.data.price,
+      description: response.data.description,
+      price: parseFloat(response.data.price),
       image: null
     })
+    console.log('بيانات الخدمة المحملة:', response.data)
   } catch (error) {
     console.error('فشل تحميل بيانات الخدمة:', error)
     alert('فشل تحميل بيانات الخدمة')
@@ -228,6 +232,12 @@ const loadService = async () => {
 const handleImageUpload = (event) => {
   const file = event.target.files[0]
   if (file) {
+    // التحقق من حجم الصورة (5MB كحد أقصى)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('حجم الصورة يجب أن يكون أقل من 5MB')
+      return
+    }
+    
     formData.image = file
     const reader = new FileReader()
     reader.onload = (e) => {
@@ -252,28 +262,47 @@ const updateService = async () => {
     // إنشاء FormData لإرسال البيانات
     const submitData = new FormData()
     submitData.append('title', formData.title)
-    submitData.append('description', formData.description)
+    submitData.append('price', formData.price.toString())
     submitData.append('category', formData.category)
-    submitData.append('price', formData.price)
+    submitData.append('description', formData.description)
+    submitData.append('has_image', formData.image ? 'true' : 'false')
     
+    submitData.append('_method', 'PUT') // إذا كان الخادم يتطلب ذلك لتحديد طريقة PUT    
+    // إضافة الصورة فقط إذا تم اختيار صورة جديدة
     if (formData.image) {
       submitData.append('image', formData.image)
     }
 
-    // استخدام PUT مباشرة بدون _method
-    await providerService.updateService(route.params.id, submitData)
-    
-    // إظهار رسالة نجاح
-    alert('تم تحديث الخدمة بنجاح!')
+    console.log('بيانات التعديل المرسلة:', {
+      title: formData.title,
+      price: formData.price,
+      category: formData.category,
+      description: formData.description,
+      hasImage: !!formData.image
+    })
+
+    const response = await providerService.updateService(route.params.id, submitData)
+    console.log('استجابة التعديل:', response.data)
     
     // إعادة التوجيه إلى صفحة الخدمات
     router.push('/provider/services')
     
   } catch (error) {
     console.error('فشل تحديث الخدمة:', error)
+    console.error('تفاصيل الخطأ:', error.response?.data)
     alert('فشل تحديث الخدمة. يرجى المحاولة مرة أخرى.')
   } finally {
     updating.value = false
   }
 }
 </script>
+
+<style scoped>
+.btn-primary {
+  @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+}
+
+.btn-secondary {
+  @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+}
+</style>

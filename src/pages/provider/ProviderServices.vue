@@ -10,14 +10,14 @@
         </svg>
       </template>
 
-      <template #actions>
+      <!-- <template #actions>
         <router-link to="/provider/add-service" class="btn-primary flex items-center space-x-2 space-x-reverse">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
           <span>إضافة خدمة</span>
         </router-link>
-      </template>
+      </template> -->
     </AppHeader>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
