@@ -109,26 +109,30 @@
               صورة الخدمة
             </label>
             <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-400 transition-colors duration-200">
+              
+              <!-- حقل الإدخال المخفي - يجب أن يكون خارج الشروط -->
+              <input
+                type="file"
+                ref="fileInput"
+                @change="handleImageUpload"
+                accept="image/*"
+                class="hidden"
+              >
+              
               <div v-if="!imagePreview && !serviceData.image">
                 <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
                 <p class="text-gray-600 mb-2">اسحب وأفلت الصورة هنا أو</p>
-                <input
-                  type="file"
-                  ref="fileInput"
-                  @change="handleImageUpload"
-                  accept="image/*"
-                  class="hidden"
-                >
                 <button
                   type="button"
-                  @click="$refs.fileInput.click()"
+                  @click="triggerFileInput"
                   class="btn-secondary"
                 >
                   اختر صورة
                 </button>
               </div>
+              
               <div v-else>
                 <img :src="imagePreview || serviceData.image" alt="معاينة الصورة" class="w-32 h-32 object-cover rounded-lg mx-auto mb-4">
                 <div class="space-x-4">
@@ -141,7 +145,7 @@
                   </button>
                   <button
                     type="button"
-                    @click="$refs.fileInput.click()"
+                    @click="triggerFileInput"
                     class="text-primary-600 hover:text-primary-700 text-sm font-medium"
                   >
                     تغيير الصورة
@@ -151,6 +155,7 @@
             </div>
             <p class="text-sm text-gray-500 mt-1">اختياري - إذا لم تقم باختيار صورة جديدة سيتم الاحتفاظ بالصورة الحالية</p>
           </div>
+
 
           <!-- أزرار الإجراءات -->
           <div class="flex flex-col sm:flex-row gap-4 justify-end pt-6 border-t border-gray-200">
@@ -229,9 +234,22 @@ const loadService = async () => {
   }
 }
 
+// دالة لتفعيل اختيار الملف
+const triggerFileInput = () => {
+  if (fileInput.value) {
+    fileInput.value.click()
+  }
+}
+
 const handleImageUpload = (event) => {
   const file = event.target.files[0]
   if (file) {
+    // التحقق من نوع الملف
+    if (!file.type.startsWith('image/')) {
+      alert('الرجاء اختيار ملف صورة فقط')
+      return
+    }
+    
     // التحقق من حجم الصورة (5MB كحد أقصى)
     if (file.size > 5 * 1024 * 1024) {
       alert('حجم الصورة يجب أن يكون أقل من 5MB')
@@ -244,6 +262,8 @@ const handleImageUpload = (event) => {
       imagePreview.value = e.target.result
     }
     reader.readAsDataURL(file)
+    
+    console.log('تم اختيار صورة جديدة:', file.name)
   }
 }
 
@@ -253,6 +273,7 @@ const removeImage = () => {
   if (fileInput.value) {
     fileInput.value.value = ''
   }
+  console.log('تم إزالة الصورة')
 }
 
 const updateService = async () => {
@@ -265,12 +286,15 @@ const updateService = async () => {
     submitData.append('price', formData.price.toString())
     submitData.append('category', formData.category)
     submitData.append('description', formData.description)
-    submitData.append('has_image', formData.image ? 'true' : 'false')
-    
+
     submitData.append('_method', 'PUT') // إذا كان الخادم يتطلب ذلك لتحديد طريقة PUT    
+
     // إضافة الصورة فقط إذا تم اختيار صورة جديدة
     if (formData.image) {
       submitData.append('image', formData.image)
+      console.log('سيتم تحديث الصورة')
+    } else {
+      console.log('سيتم الاحتفاظ بالصورة الحالية')
     }
 
     console.log('بيانات التعديل المرسلة:', {
