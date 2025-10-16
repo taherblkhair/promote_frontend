@@ -15,7 +15,7 @@
         <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ service.title }}</h2>
         <p class="text-gray-700 mb-4" style="white-space: pre-line">{{ service.description }}</p>
         <div class="flex items-center mb-4">
-          <span class="text-primary-600 font-bold text-lg">{{ service.price }} ر.س</span>
+          <span class="text-primary-600 font-bold text-lg">{{ service.price }} د.ل</span>
           <span class="ml-4 text-gray-500">المزود: {{ service.provider }}</span>
         </div>
         <div class="mb-4">

@@ -2,6 +2,13 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const routes = [
+  // تسجيل حساب جديد
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('@/pages/auth/RegisterPage.vue'),
+    meta: { requiresAuth: false, guestOnly: true }
+  },
   {
     path: '/login',
     name: 'Login',
@@ -68,11 +75,28 @@ const routes = [
   {
     path: '/provider/services',
     name: 'ProviderServices',
-    component: () => import('@/pages/services/ProviderServicesPage.vue'),
+    component: () => import('@/pages/provider/ProviderServices.vue'),
     meta: { requiresAuth: true, allowedRoles: ['provider'] }
   },
-
-  // مسارات المديرf
+  {
+  path: '/provider/add-service',
+  name: 'AddService',
+  component: () => import('@/pages/provider/AddService.vue'),
+  meta: { requiresAuth: true, allowedRoles: ['provider'] }
+  },
+  {
+    path: '/provider/edit-service/:id',
+    name: 'EditService',
+    component: () => import('@/pages/provider/EditService.vue'),
+    meta: { requiresAuth: true, allowedRoles: ['provider'] }
+  },
+  {
+    path: '/provider/services/:id',
+    name: 'ProviderServiceDetails',
+    component: () => import('@/pages/provider/ServiceDetails.vue'),
+    meta: { requiresAuth: true, allowedRoles: ['provider'] }
+  },
+  // مسارات المدير
   {
     path: '/admin',
     name: 'AdminHome',

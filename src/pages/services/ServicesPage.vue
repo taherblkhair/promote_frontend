@@ -45,10 +45,10 @@
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
           >
             <option value="">جميع الأسعار</option>
-            <option value="0-100">حتى 100 ر.س</option>
-            <option value="100-500">100 - 500 ر.س</option>
-            <option value="500-1000">500 - 1000 ر.س</option>
-            <option value="1000-999999">أكثر من 1000 ر.س</option>
+            <option value="0-100">حتى 100 د.ل</option>
+            <option value="100-500">100 - 500 د.ل</option>
+            <option value="500-1000">500 - 1000 د.ل</option>
+            <option value="1000-999999">أكثر من 1000 د.ل</option>
           </select>
 
           <!-- الترتيب -->
@@ -186,7 +186,7 @@
             <div class="flex items-center justify-between pt-4 border-t border-gray-100">
               <div>
                 <span class="text-2xl font-bold text-primary-600">{{ service.price }}</span>
-                <span class="text-gray-500 text-sm mr-1">ر.س</span>
+                <span class="text-gray-500 text-sm mr-1">د.ل</span>
               </div>
               
               <router-link
