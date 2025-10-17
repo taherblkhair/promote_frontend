@@ -214,7 +214,7 @@
 </div>
 
               <!-- حالة مقبولة -->
-              <div v-if="orderData.status === 'accepted'" class="space-y-2">
+              <!-- <div v-if="orderData.status === 'accepted'" class="space-y-2">
                 <button
                   @click="updateOrderStatus('completed')"
                   :disabled="updating"
@@ -235,7 +235,7 @@
                   </svg>
                   <span>إلغاء الطلب</span>
                 </button>
-              </div>
+              </div> -->
 
               <!-- اتصال بالعميل -->
               <button
