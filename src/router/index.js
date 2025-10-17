@@ -96,6 +96,18 @@ const routes = [
     component: () => import('@/pages/provider/ServiceDetails.vue'),
     meta: { requiresAuth: true, allowedRoles: ['provider'] }
   },
+  {
+  path: '/provider/orders',
+  name: 'ProviderOrders',
+  component: () => import('@/pages/provider/ProviderOrders.vue'),
+  meta: { requiresAuth: true, allowedRoles: ['provider'] }
+},
+{
+  path: '/provider/orders/:id',
+  name: 'ProviderOrderDetails',
+  component: () => import('@/pages/provider/OrderDetails.vue'),
+  meta: { requiresAuth: true, allowedRoles: ['provider'] }
+},
   // مسارات المدير
   {
     path: '/admin',
