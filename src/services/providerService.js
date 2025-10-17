@@ -23,13 +23,13 @@ export const providerService = {
   })
 },
 
-    updateService(id, serviceData) {
-        return api.put(`/provider/services/${id}`, serviceData, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
-        })
-    }, 
+updateService(id, serviceData) {
+    return api.post(`/provider/services/${id}`, serviceData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+  },
 
 
   deleteService(id) {

@@ -280,41 +280,64 @@ const updateService = async () => {
   updating.value = true
   
   try {
-    // إنشاء FormData لإرسال البيانات
+    // إنشاء FormData بشكل صحيح
     const submitData = new FormData()
+    
+    // إضافة البيانات الأساسية
     submitData.append('title', formData.title)
     submitData.append('price', formData.price.toString())
     submitData.append('category', formData.category)
     submitData.append('description', formData.description)
 
-    submitData.append('_method', 'PUT') // إذا كان الخادم يتطلب ذلك لتحديد طريقة PUT    
-
-    // إضافة الصورة فقط إذا تم اختيار صورة جديدة
-    if (formData.image) {
+    // إضافة الصورة فقط إذا كانت جديدة
+    if (formData.image instanceof File) {
       submitData.append('image', formData.image)
-      console.log('سيتم تحديث الصورة')
+      console.log('سيتم تحديث الصورة:', formData.image.name)
     } else {
-      console.log('سيتم الاحتفاظ بالصورة الحالية')
+      // إذا لم تكن صورة جديدة، أرسل الصورة الحالية كسلسلة
+      submitData.append('current_image', serviceData.image)
     }
 
-    console.log('بيانات التعديل المرسلة:', {
-      title: formData.title,
-      price: formData.price,
-      category: formData.category,
-      description: formData.description,
-      hasImage: !!formData.image
-    })
+    // إضافة _method فقط إذا كان الخادم يتطلبها (لتحويل POST إلى PUT)
+    submitData.append('_method', 'PUT')
 
+    console.log('بيانات التعديل المرسلة:')
+    for (let [key, value] of submitData.entries()) {
+      console.log(key + ': ' + value)
+    }
+
+    // استدعاء API
     const response = await providerService.updateService(route.params.id, submitData)
     console.log('استجابة التعديل:', response.data)
     
-    // إعادة التوجيه إلى صفحة الخدمات
-    router.push('/provider/services')
+    // إظهار رسالة نجاح
+    alert('تم تحديث الخدمة بنجاح!')
+    
+    // إعادة التوجيه بعد تأكيد النجاح
+    setTimeout(() => {
+      router.push('/provider/services')
+    }, 1000)
     
   } catch (error) {
     console.error('فشل تحديث الخدمة:', error)
-    console.error('تفاصيل الخطأ:', error.response?.data)
-    alert('فشل تحديث الخدمة. يرجى المحاولة مرة أخرى.')
+    
+    // عرض تفاصيل الخطأ بشكل أفضل
+    if (error.response) {
+      console.error('تفاصيل الخطأ من الخادم:', error.response.data)
+      console.error('حالة الخطأ:', error.response.status)
+      
+      // عرض رسالة خطأ محددة
+      const errorMessage = error.response.data.message || 
+                          error.response.data.error || 
+                          'فشل تحديث الخدمة. يرجى المحاولة مرة أخرى.'
+      alert(errorMessage)
+    } else if (error.request) {
+      console.error('لا يوجد اتصال بالخادم:', error.request)
+      alert('فشل الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت.')
+    } else {
+      console.error('خطأ في الإعداد:', error.message)
+      alert('حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.')
+    }
   } finally {
     updating.value = false
   }
