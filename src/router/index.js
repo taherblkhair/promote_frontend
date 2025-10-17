@@ -109,12 +109,25 @@ const routes = [
   meta: { requiresAuth: true, allowedRoles: ['provider'] }
 },
   // مسارات المدير
-  {
-    path: '/admin',
-    name: 'AdminHome',
-    component: () => import('@/pages/admin/AdminDashboard.vue'),
-    meta: { requiresAuth: true, allowedRoles: ['admin'], guestOnly: true }
-  },
+  // داخل مصفوفة routes، ابحث عن مسار المدير الحالي واستبدله:
+{
+  path: '/admin',
+  name: 'AdminHome',
+  component: () => import('@/pages/admin/AdminDashboard.vue'),
+  meta: { requiresAuth: true, allowedRoles: ['admin'] }
+},
+{
+  path: '/admin/profile',
+  name: 'AdminProfile',
+  component: () => import('@/pages/admin/AdminProfile.vue'),
+  meta: { requiresAuth: true, allowedRoles: ['admin'] }
+},
+{
+  path: '/admin/users',
+  name: 'AdminUsers',
+  component: () => import('@/pages/admin/AdminUsers.vue'),
+  meta: { requiresAuth: true, allowedRoles: ['admin'] }     
+},
   
   // مسار للصفحات غير الموجودة
   {
