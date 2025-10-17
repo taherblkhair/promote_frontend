@@ -48,6 +48,14 @@
             <span v-else>تسجيل الدخول</span>
           </button>
         </div>
+        <div class="text-center">
+  <p class="text-sm text-gray-600">
+    ليس لديك حساب؟ 
+    <router-link to="/register" class="font-medium text-primary-600 hover:text-primary-500 transition-colors duration-200">
+      إنشاء حساب جديد
+    </router-link>
+  </p>
+</div>
 
         <!-- عرض رسالة الخطأ -->
         <div v-if="errorMessage" class="bg-red-50 border border-red-200 rounded-lg p-4">
