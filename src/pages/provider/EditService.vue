@@ -223,7 +223,7 @@ const loadService = async () => {
       category: response.data.category,
       description: response.data.description,
       price: parseFloat(response.data.price),
-      image: null
+      image: response.data.image,
     })
     console.log('بيانات الخدمة المحملة:', response.data)
   } catch (error) {
