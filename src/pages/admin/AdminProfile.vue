@@ -1,8 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <AdminHeader />
-    
-    <div class="lg:ml-64 pt-16">
+    <AdminLayout>
+   
       <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- العنوان -->
         <div class="mb-8">
@@ -298,7 +296,6 @@
           </div>
         </div>
       </main>
-    </div>
 
     <!-- مودال تغيير كلمة المرور -->
     <div v-if="showChangePassword" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -353,14 +350,14 @@
         </form>
       </div>
     </div>
-  </div>
+    </AdminLayout>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import AdminHeader from '@/components/admin/AdminHeader.vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

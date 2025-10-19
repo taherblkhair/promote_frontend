@@ -1,12 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex">
+    <AdminLayout>
+
     <!-- Sidebar -->
-    <AdminSidebar />
     
     <!-- المحتوى الرئيسي -->
-    <div :class="['flex-1 transition-all duration-300', sidebarOpen ? 'mr-64' : 'mr-20'] ">
       <!-- Header -->
-      <AdminHeader @toggle-sidebar="handleSidebarToggle" />
       
       <!-- المحتوى -->
       <main class="mt-16 p-6">
@@ -135,8 +133,7 @@
           </div>
         </div>
       </main>
-    </div>
-  </div>
+    </AdminLayout>
 </template>
 
 <script setup>
@@ -145,6 +142,7 @@ import AdminSidebar from '@/components/admin/AdminSidebar.vue'
 import AdminHeader from '@/components/admin/AdminHeader.vue'
 import StatCard from '@/components/admin/StatCard.vue'
 import { adminService } from '@/services/adminService'
+import AdminLayout from '@/layouts/AdminLayout.vue'
 
 const loading = ref(true)
 const dashboardData = ref({})

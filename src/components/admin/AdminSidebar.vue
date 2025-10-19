@@ -3,7 +3,7 @@
   <div 
     v-if="isMobile && isOpen" 
     class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-    @click="closeSidebar"
+    @click="$emit('toggle')"
   ></div>
 
   <!-- Sidebar -->
@@ -11,14 +11,14 @@
     :class="[
       'bg-gray-800 min-h-screen fixed top-0 overflow-y-auto transition-all duration-300 z-50',
       isOpen ? 'w-64' : 'w-20',
-      isMobile ? 'right-0' : 'right-0'
+      'right-0'
     ]"
   >
     <!-- الشعار وزر القفل -->
     <div class="p-4 border-b border-gray-700">
       <div class="flex items-center justify-between">
         <div v-if="isOpen" class="flex items-center space-x-3 space-x-reverse">
-          <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+          <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
             <span class="text-white font-bold text-lg">A</span>
           </div>
           <div>
@@ -27,13 +27,13 @@
           </div>
         </div>
         
-        <div v-else class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center mx-auto">
+        <div v-else class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center mx-auto">
           <span class="text-white font-bold text-lg">A</span>
         </div>
 
         <!-- زر إغلاق/فتح السايدبار -->
         <button 
-          @click="toggleSidebar"
+          @click="$emit('toggle')"
           class="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +51,7 @@
           <router-link
             :to="item.path"
             class="flex items-center space-x-3 space-x-reverse p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors group"
-            :class="{ 'bg-primary-600 text-white': $route.path === item.path }"
+            :class="{ 'bg-purple-600 text-white': $route.path === item.path }"
           >
             <div class="relative">
               <component :is="item.icon" class="w-5 h-5" />
@@ -123,12 +123,20 @@ const AnalyticsIcon = {
 }
 
 const route = useRoute()
-const isOpen = ref(true)
 const isMobile = ref(false)
+
+const props = defineProps({
+  isOpen: {
+    type: Boolean,
+    default: true
+  }
+})
+
+const emit = defineEmits(['toggle'])
 
 const menuItems = computed(() => [
   { 
-    name: 'الرئيسية', 
+    name: 'لوحة التحكم', 
     path: '/admin', 
     icon: HomeIcon,
     badge: null
@@ -137,19 +145,19 @@ const menuItems = computed(() => [
     name: 'المستخدمين', 
     path: '/admin/users', 
     icon: UsersIcon,
-    badge: 5
+    badge: null
   },
   { 
     name: 'الخدمات', 
     path: '/admin/services', 
     icon: ServicesIcon,
-    badge: 12
+    badge: null
   },
   { 
     name: 'الطلبات', 
     path: '/admin/orders', 
     icon: OrdersIcon,
-    badge: 8
+    badge: null
   },
   { 
     name: 'التقارير', 
@@ -161,19 +169,6 @@ const menuItems = computed(() => [
 
 const checkScreenSize = () => {
   isMobile.value = window.innerWidth < 1024
-  if (isMobile.value) {
-    isOpen.value = false
-  }
-}
-
-const toggleSidebar = () => {
-  isOpen.value = !isOpen.value
-}
-
-const closeSidebar = () => {
-  if (isMobile.value) {
-    isOpen.value = false
-  }
 }
 
 onMounted(() => {
@@ -188,6 +183,6 @@ onUnmounted(() => {
 
 <style scoped>
 .router-link-active {
-  @apply bg-primary-600 text-white;
+  @apply bg-purple-600 text-white;
 }
 </style>

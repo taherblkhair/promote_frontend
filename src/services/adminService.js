@@ -15,7 +15,20 @@ export const adminService = {
   getUsers() {
     return api.get('/admin/users')
   },
+ 
+ 
+  createUser(userData) {
+    return api.post('/admin/users', userData , {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+  },
 
+
+
+
+  
   getUser(id) {
     return api.get(`/admin/users/${id}`)
   },
