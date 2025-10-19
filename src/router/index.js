@@ -129,6 +129,25 @@ const routes = [
   meta: { requiresAuth: true, allowedRoles: ['admin'] }     
 },
   
+{
+  path: '/admin/services',
+  name: 'AdminServices',
+  component: () => import('@/pages/admin/AdminServices.vue'),
+  meta: { requiresAuth: true, allowedRoles: ['admin'] }
+},
+{
+  path: '/admin/orders',
+  name: 'AdminOrders',
+  component: () => import('@/pages/admin/AdminOrders.vue'),
+  meta: { requiresAuth: true, allowedRoles: ['admin'] }
+},
+{
+  path: '/admin/reports',
+  name: 'AdminReports',
+  component: () => import('@/pages/admin/AdminReports.vue'),
+  meta: { requiresAuth: true, allowedRoles: ['admin'] }
+},
+
   // مسار للصفحات غير الموجودة
   {
     path: '/:pathMatch(.*)*',

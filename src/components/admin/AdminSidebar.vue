@@ -161,7 +161,7 @@ const menuItems = computed(() => [
   },
   { 
     name: 'التقارير', 
-    path: '/admin/analytics', 
+    path: '/admin/reports', 
     icon: AnalyticsIcon,
     badge: null
   }
