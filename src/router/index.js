@@ -54,6 +54,22 @@ const routes = [
     meta: { requiresAuth: true, allowedRoles: ['client'] }
   },
   {
+  path: '/orders/:id',
+  name: 'OrderDetails',
+  component: () => import('@/pages/orders/OrderDetails.vue'),
+  meta: { requiresAuth: true }
+  },
+  {
+  path: '/orders/:orderId/chat',
+  name: 'Chat',
+  component: () => import('@/pages/Chat.vue'),
+  meta: { requiresAuth: true }
+},
+
+
+
+
+  {
     path: '/services',
     name: 'ClientServices',
     component: () => import('@/pages/services/ServicesPage.vue'),
@@ -108,6 +124,21 @@ const routes = [
   component: () => import('@/pages/provider/OrderDetails.vue'),
   meta: { requiresAuth: true, allowedRoles: ['provider'] }
 },
+{
+    // مسار لفتح المحادثة بناءً على orderId
+    path: '/provider/orders/:orderId/chat', 
+    name: 'ProviderChatPage',
+    component: () => import('@/pages/provider/ChatPage.vue'),
+    props: true, // يمرر orderId كخاصية للمكون
+  },
+  // يمكنك إضافة مسار اختياري إذا كنت تعرف chatId مسبقًا
+  {
+    path: '/provider/orders/:orderId/chat/:chatId',
+    name: 'ProviderChatPageWithId',
+    component: () => import('@/pages/provider/ChatPage.vue'),
+    props: true,
+  },
+
   // مسارات المدير
   // داخل مصفوفة routes، ابحث عن مسار المدير الحالي واستبدله:
 {

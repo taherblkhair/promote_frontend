@@ -10,25 +10,7 @@
         </svg>
       </template>
 
-      <template #actions>
-        <div class="flex items-center space-x-3 space-x-reverse">
-          <!-- إحصائيات سريعة -->
-          <div class="hidden md:flex items-center space-x-4 space-x-reverse text-sm">
-            <div class="flex items-center space-x-1 space-x-reverse">
-              <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
-              <span class="text-gray-600">قيد الانتظار ({{ pendingCount }})</span>
-            </div>
-            <div class="flex items-center space-x-1 space-x-reverse">
-              <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span class="text-gray-600">مقبولة ({{ acceptedCount }})</span>
-            </div>
-            <div class="flex items-center space-x-1 space-x-reverse">
-              <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span class="text-gray-600">مكتملة ({{ completedCount }})</span>
-            </div>
-          </div>
-        </div>
-      </template>
+     
     </AppHeader>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

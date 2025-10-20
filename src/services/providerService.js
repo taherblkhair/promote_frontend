@@ -22,7 +22,18 @@ export const providerService = {
     }
   })
 },
-
+ openChat: (orderId) => {
+    return api.post(`/chats/open/${orderId}`);
+  },
+  getChatMessages: (chatId) => {
+    return api.get(`/chats/${chatId}/messages`);
+  },
+  sendMessage: (chatId, messagePayload) => {
+    return api.post(`/chats/${chatId}/messages`, messagePayload);
+  },
+  markChatAsRead: (chatId) => {
+    return api.post(`/chats/${chatId}/read`);
+  },
 updateService(id, serviceData) {
     return api.post(`/provider/services/${id}`, serviceData, {
       headers: {
