@@ -196,6 +196,7 @@ import { useRoute, useRouter } from 'vue-router'
 import api from '@/services/api' // Make sure this path is correct
 import { useAuthStore } from '@/stores/auth' // Make sure this path is correct
 import AppHeader from '@/components/AppHeader.vue' // Make sure this path is correct
+import echo from '@/plugins/echo' // استيراد Laravel Echo
 
 // --- Helper Functions ---
 // Simple debounce function (can be replaced by lodash.debounce if used elsewhere)
@@ -236,8 +237,14 @@ const reversedMessages = computed(() => [...messages.value].reverse())
 // --- Chat Specific Logic ---
 const getOtherPartyName = () => {
   if (!chat.value) return ''
-  // Assuming chat object has client_name and provider_name fields
-  return auth.user?.id === chat.value.client_id ? chat.value.provider_name || 'المزود' : chat.value.client_name || 'العميل'
+  // Assuming chat object has client_name and provider_name fields or you fetch users
+  // You might need to adjust this based on how you fetch user names.
+  // Example: if chat.provider is available and it has a name:
+  if (auth.user?.id === chat.value.client_id) {
+    return chat.value.provider?.name || 'المزود'; // Access through relation
+  } else {
+    return chat.value.client?.name || 'العميل'; // Access through relation
+  }
 }
 
 const getOtherPartyRole = () => {
@@ -296,10 +303,12 @@ const formatDateSeparator = (dateString) => {
 const scrollToBottom = async (behavior = 'smooth') => {
   await nextTick(() => {
     if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-      // Using `scrollTo` with behavior: 'smooth' for animation
+      // For flex-col-reverse, scrollTop = 0 is the bottom
+      messagesContainer.value.scrollTop = 0; 
+      // If you want smooth behavior, consider using an alternative
+      // as `scrollTop = 0` is instant.
       // messagesContainer.value.scrollTo({
-      //   top: messagesContainer.value.scrollHeight,
+      //   top: 0, // This is the bottom in flex-col-reverse
       //   behavior: behavior
       // });
     }
@@ -310,13 +319,16 @@ const handleScroll = () => {
   if (!messagesContainer.value) return;
 
   const { scrollTop, scrollHeight, clientHeight } = messagesContainer.value;
-  // Determine if user is near the bottom to hide "scroll to bottom" button
-  // Note: with flex-col-reverse, scrollTop is 0 when at the bottom (newest messages)
-  // And scrollHeight - clientHeight when at the top (oldest messages)
-  showScrollToBottomButton.value = scrollTop > 100; // Show if scrolled up by more than 100px
+  
+  // Show button if scrolled up from the visual bottom (scrollTop > some threshold)
+  showScrollToBottomButton.value = scrollTop > 100;
 
   // Load more messages when scrolled to the very top (oldest messages)
-  if (scrollTop >= messagesContainer.value.scrollHeight - clientHeight - 50 && hasMoreMessages.value && !loadingMore.value) {
+  // With flex-col-reverse, scrollTop increases as you scroll "up" (towards older messages)
+  // When scrolled to the very top, scrollTop will be `scrollHeight - clientHeight`
+  const isAtTop = scrollTop >= (scrollHeight - clientHeight - 50); // Small buffer
+
+  if (isAtTop && hasMoreMessages.value && !loadingMore.value) {
      loadMoreMessages();
   }
 };
@@ -327,12 +339,11 @@ const loadMoreMessages = async () => {
   if (loadingMore.value || !hasMoreMessages.value) return;
 
   loadingMore.value = true;
-  // Capture scroll height before new messages are added
-  const oldScrollHeight = messagesContainer.value ? messagesContainer.value.scrollHeight : 0;
+  // Capture scroll position relative to the bottom before new messages are added
+  const oldScrollBottom = messagesContainer.value.scrollHeight - messagesContainer.value.scrollTop;
 
   try {
     const nextPage = currentPage.value + 1;
-    // Assuming API returns older messages first (e.g., chronologically oldest to newest)
     const response = await api.get(`/chats/${chat.value.id}/messages?page=${nextPage}`);
     
     // Prepend new (older) messages to the existing list
@@ -344,7 +355,7 @@ const loadMoreMessages = async () => {
 
     // Adjust scroll position to keep the current view stable
     if (messagesContainer.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight - oldScrollHeight;
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight - oldScrollBottom;
     }
 
   } catch (error) {
@@ -362,8 +373,8 @@ const sendMessage = async () => {
   newMessage.value = ''; // Clear input immediately for better UX
   
   // Send typing stopped event via WebSocket (whisper)
-  if (window.Echo && chat.value) {
-    window.Echo.private(`chat.${chat.value.id}`)
+  if (echo && chat.value) {
+    echo.private(`chat.${chat.value.id}`)
                 .whisper('typing', {
                     user: auth.user,
                     typing: false
@@ -375,9 +386,15 @@ const sendMessage = async () => {
       content: messageContent
     });
 
+    // We rely on the WebSocket event to add the message to avoid duplicates
+    // However, if you want immediate display for the sender, you can push it here
+    // And handle potential duplicates in the listener.
+    // For simplicity and immediate feedback, we will push it here:
     messages.value.push(response.data);
     scrollToBottom(); // Scroll to new message
-    await markMessagesAsRead(); // Mark as read immediately if current user is sender
+    // No need to mark as read immediately if current user is sender,
+    // the backend takes care of marking *other* messages as read.
+    // The `is_read` status for own messages is handled by the backend's logic.
   } catch (error) {
     console.error('Error sending message:', error);
     alert('فشل إرسال الرسالة. يرجى المحاولة مرة أخرى.');
@@ -391,9 +408,9 @@ const markMessagesAsRead = async () => {
   try {
     await api.post(`/chats/${chat.value.id}/read`);
     
-    // Update local message state to show as read
+    // Update local message state to show as read for messages from other party
     messages.value.forEach(message => {
-      if (!isMyMessage(message)) { // Mark only other party's messages as read
+      if (!isMyMessage(message) && !message.is_read) { 
         message.is_read = true;
       }
     });
@@ -409,6 +426,11 @@ const openOrCreateChat = async () => {
     const response = await api.post(`/chats/open/${orderId}`);
     chat.value = response.data;
     
+    // Ensure chat object includes client and provider details for getOtherPartyName
+    // If your backend does not automatically include them, you might need another API call
+    // Or modify your ChatController@openForOrder to eager load them.
+    // For now, assuming chat.client and chat.provider relations are loaded.
+
     await loadMessages();
   } catch (error) {
     console.error('Error opening chat:', error);
@@ -433,28 +455,42 @@ const loadMessages = async () => {
 
 // --- WebSocket / Real-time Logic ---
 const sendTypingEvent = debounce(() => {
-  if (window.Echo && chat.value) {
-    window.Echo.private(`chat.${chat.value.id}`)
+  if (echo && chat.value) {
+    echo.private(`chat.${chat.value.id}`)
                 .whisper('typing', {
-                    user: auth.user,
+                    user: auth.user, // Send current authenticated user info
                     typing: newMessage.value.length > 0 // Send true if typing, false if cleared
                 });
   }
 }, 300); // Debounce typing event to avoid flooding the server
 
 const listenForChatEvents = () => {
-  if (!chat.value || !window.Echo) return;
+  if (!chat.value || !echo) return;
 
   // Listen for new chat messages
-  window.Echo.private(`chat.${chat.value.id}`)
-      .listen('NewChatMessage', (e) => {
-          messages.value.push(e.message);
-          scrollToBottom();
-          markMessagesAsRead(); // Mark new incoming messages as read
+  echo.private(`chat.${chat.value.id}`)
+      .listen('NewMessageSent', (e) => { // Make sure this event name matches
+          console.log('New message received:', e.message);
+          if (e.message.sender_id !== auth.user?.id) { // Only add if from other party
+              messages.value.push(e.message);
+              scrollToBottom();
+              markMessagesAsRead(); // Mark new incoming messages as read
+          } else {
+              // If it's the current user's message, update its `is_read` status
+              // This is a bit tricky as `is_read` is for the *receiver*.
+              // When current user sends, `is_read` is false initially.
+              // When the other party reads it, the backend should update it.
+              // For now, let's assume the backend will handle read status for sent messages.
+              // We can update the local message list if the backend broadcasts a "message_read" event.
+              const index = messages.value.findIndex(msg => msg.id === e.message.id);
+              if (index !== -1) {
+                  messages.value[index].is_read = e.message.is_read;
+              }
+          }
       })
       // Listen for typing whispers
       .listenForWhisper('typing', (e) => {
-          if (e.user.id !== auth.user.id) { // Only show typing for the other party
+          if (e.user.id !== auth.user?.id) { // Only show typing for the other party
               otherPartyTyping.value = e.typing;
               if (typingTimeout) clearTimeout(typingTimeout);
               if (e.typing) {
@@ -471,9 +507,9 @@ const listenForChatEvents = () => {
 watch(chat, (newChat, oldChat) => {
   if (newChat && newChat.id !== oldChat?.id) {
     // Unsubscribe from old channel if it exists
-    if (oldChat && window.Echo) {
-      window.Echo.private(`chat.${oldChat.id}`).stopListening('NewChatMessage');
-      window.Echo.private(`chat.${oldChat.id}`).stopListeningForWhisper('typing');
+    if (oldChat && echo) {
+      echo.private(`chat.${oldChat.id}`).stopListening('NewMessageSent');
+      echo.private(`chat.${oldChat.id}`).stopListeningForWhisper('typing');
     }
     listenForChatEvents(); // Subscribe to new chat channel
   }
@@ -490,7 +526,6 @@ onMounted(async () => {
     }
 
     await openOrCreateChat();
-    // Removed polling interval as WebSockets will handle real-time updates
     
     // Add scroll event listener
     if (messagesContainer.value) {
@@ -525,9 +560,9 @@ onUnmounted(() => {
     messagesContainer.value.removeEventListener('scroll', debouncedHandleScroll);
   }
   // Unsubscribe from WebSocket channel if chat was active
-  if (chat.value && window.Echo) {
-    window.Echo.private(`chat.${chat.value.id}`).stopListening('NewChatMessage');
-    window.Echo.private(`chat.${chat.value.id}`).stopListeningForWhisper('typing');
+  if (chat.value && echo) {
+    echo.private(`chat.${chat.value.id}`).stopListening('NewMessageSent');
+    echo.private(`chat.${chat.value.id}`).stopListeningForWhisper('typing');
   }
 });
 </script>
@@ -562,12 +597,10 @@ onUnmounted(() => {
 }
 
 /* Flexbox specific spacing for reversed column layout */
-.flex-col-reverse > * + * {
-  margin-top: 0; /* Reset default margin-top from space-y-4 */
-}
-
-/* Ensure messages have space between them, now handled individually with mt-4 */
-/* Example: .flex.mt-4 in template */
+/* These styles should largely be handled by template classes like mt-4 */
+/* .flex-col-reverse > * + * {
+  margin-top: 0; 
+} */
 
 /* Specific adjustment for flex-row-reverse for sender's message bubble */
 .ml-auto.justify-end.flex-row-reverse > div {

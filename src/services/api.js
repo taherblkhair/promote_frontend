@@ -1,9 +1,10 @@
+// src/api.js (أو أينما يوجد ملف API الخاص بك)
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
-
+  // استخدم المتغير البيئي هنا
+  baseURL: import.meta.env.VITE_API_URL,
 })
 
 // إضافة التوكن تلقائياً للطلبات
