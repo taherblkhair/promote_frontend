@@ -79,5 +79,28 @@ getOrders() {
 
   cancelOrder(id) {
     return api.put(`/provider/orders/${id}`, { status: 'cancelled' })
+  },
+
+
+  // معرض الأعمال
+  getPortfolio(page = 1) {
+    return api.get('/provider/my-portfolio', {
+      params: { page }
+    })
+  },
+  addPortfolioItem(data) {
+    return api.post('/provider/items', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+  },
+  
+
+  
+
+  
+  deletePortfolioItem(id) {
+    return api.delete(`/provider/portfolio/${id}`)
   }
 }

@@ -123,7 +123,27 @@
               </div>
             </div>
           </router-link>
+          <!-- معرض الاعمال-->
+          <router-link 
+            to="/provider/portfolio"
+            class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary-200 group"            
+          >
+            <div class="flex items-center space-x-4 space-x-reverse">
+              <div class="bg-primary-100 p-3 rounded-2xl group-hover:bg-primary-200 transition-colors duration-200">
+                <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-bold text-gray-900 text-lg">معرض الأعمال</h3>
+                <p class="text-gray-600 text-sm mt-1">عرض وإدارة مشاريعك السابقة</p>
+              </div>
+            </div>
+          </router-link>
 
+
+
+          
           <router-link 
             to="/provider/add-service"
             class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary-200 group"

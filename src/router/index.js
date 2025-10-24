@@ -112,6 +112,19 @@ const routes = [
     component: () => import('@/pages/provider/ServiceDetails.vue'),
     meta: { requiresAuth: true, allowedRoles: ['provider'] }
   },
+  // مسار المعرض الاعمال  
+  {
+    path: '/provider/portfolio',
+    name: 'ProviderPortfolio',
+    component: () => import('@/pages/provider/Portfolio.vue'),
+    meta: { requiresAuth: true, allowedRoles: ['provider'] }
+  },
+  // /provider/portfolio/add
+  { path: '/provider/portfolio/add',
+     name: 'ProviderPortfolioAdd', 
+     component: () => import('@/pages/provider/PortfolioAdd.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['provider'] } },
+
   {
   path: '/provider/orders',
   name: 'ProviderOrders',
