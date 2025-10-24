@@ -12,15 +12,20 @@
       </template>
       
       <template #actions>
-        <button 
-          @click="router.back()"
-          class="btn-secondary flex items-center space-x-2 space-x-reverse"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-          </svg>
-          <span>رجوع</span>
-        </button>
+        <div class="flex items-center space-x-3 space-x-reverse">
+          <!-- زر عرض سجل الطلب -->
+         
+          
+          <button 
+            @click="router.back()"
+            class="btn-secondary flex items-center space-x-2 space-x-reverse"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            <span>رجوع</span>
+          </button>
+        </div>
       </template>
     </AppHeader>
 
@@ -188,6 +193,15 @@
                   </svg>
                   <span>{{ cancelling ? 'جاري الإلغاء...' : 'إلغاء الطلب' }}</span>
                 </button>
+                 <button 
+            @click="toggleOrderActivities"
+            class="btn-secondary flex items-center space-x-2 space-x-reverse"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>سجل الطلب</span>
+          </button>
 
                 <button 
                   @click="downloadInvoice"
@@ -213,6 +227,88 @@
             </div>
           </div>
         </div>
+
+        <!-- Order Activities Timeline -->
+        <div v-if="showOrderActivities" class="bg-white rounded-2xl shadow-lg p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-2xl font-bold text-gray-900">سجل الطلب</h3>
+            <button 
+              @click="toggleOrderActivities"
+              class="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Loading State for Activities -->
+          <div v-if="loadingActivities" class="text-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary-600 border-t-transparent mx-auto"></div>
+            <p class="mt-4 text-gray-600">جاري تحميل سجل الطلب...</p>
+          </div>
+
+          <!-- Activities Timeline -->
+          <div v-else-if="orderActivities.length > 0" class="relative">
+            <!-- الخط الرئيسي -->
+            <div class="absolute right-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+            
+            <!-- الأنشطة -->
+            <div v-for="(activity, index) in orderActivities" :key="activity.id" 
+                 class="relative flex items-start space-x-4 space-x-reverse mb-8 last:mb-0">
+              
+              <!-- النقطة -->
+              <div :class="[
+                'w-8 h-8 rounded-full border-2 flex items-center justify-center z-10 flex-shrink-0',
+                getActivityDotClass(activity.user?.role)
+              ]">
+                <span class="text-xs font-bold text-white">
+                  {{ getInitials(activity.user?.name) }}
+                </span>
+              </div>
+
+              <!-- محتوى النشاط -->
+              <div class="flex-1 pb-2 bg-gray-50 rounded-xl p-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                  <h4 class="text-lg font-bold text-gray-900">
+                    {{ activity.action }}
+                  </h4>
+                  <span class="text-sm text-gray-500">
+                    {{ formatTrackingDate(activity.created_at) }}
+                  </span>
+                </div>
+                
+                <p class="text-gray-600 mb-3" v-if="activity.note">
+                  {{ activity.note }}
+                </p>
+                
+                <!-- معلومات المستخدم -->
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center space-x-2 space-x-reverse">
+                    <span class="text-gray-600">بواسطة:</span>
+                    <span :class="getUserRoleClass(activity.user?.role)" class="font-medium px-2 py-1 rounded-full text-xs">
+                      {{ activity.user?.name }}
+                    </span>
+                  </div>
+                  <span :class="getRoleBadgeClass(activity.user?.role)" class="px-2 py-1 rounded-full text-xs">
+                    {{ getUserRoleText(activity.user?.role) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div v-else class="text-center py-8">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h4 class="text-lg font-bold text-gray-900 mb-2">لا توجد أنشطة مسجلة</h4>
+            <p class="text-gray-600">لم يتم تسجيل أي أنشطة لهذا الطلب بعد.</p>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -233,12 +329,17 @@ const order = ref(null)
 const loading = ref(true)
 const errorMessage = ref('')
 const cancelling = ref(false)
+const showOrderActivities = ref(false)
+const orderActivities = ref([])
+const loadingActivities = ref(false)
 
 const getStatusBadgeClass = (status) => {
   switch(status) {
     case 'completed': return 'bg-green-100 text-green-800'
     case 'pending': return 'bg-yellow-100 text-yellow-800'
     case 'cancelled': return 'bg-red-100 text-red-800'
+    case 'in_progress': return 'bg-blue-100 text-blue-800'
+    case 'delivered': return 'bg-purple-100 text-purple-800'
     default: return 'bg-gray-100 text-gray-800'
   }
 }
@@ -248,6 +349,8 @@ const getStatusDotClass = (status) => {
     case 'completed': return 'bg-green-500'
     case 'pending': return 'bg-yellow-500'
     case 'cancelled': return 'bg-red-500'
+    case 'in_progress': return 'bg-blue-500'
+    case 'delivered': return 'bg-purple-500'
     default: return 'bg-gray-500'
   }
 }
@@ -257,15 +360,63 @@ const getStatusText = (status) => {
     case 'completed': return 'مكتمل'
     case 'pending': return 'قيد الانتظار'
     case 'cancelled': return 'ملغي'
+    case 'in_progress': return 'جاري التنفيذ'
+    case 'delivered': return 'تم التسليم'
     default: return status
   }
 }
 
+const getActivityDotClass = (role) => {
+  switch(role) {
+    case 'client': return 'bg-blue-500 border-blue-500'
+    case 'provider': return 'bg-green-500 border-green-500'
+    case 'admin': return 'bg-purple-500 border-purple-500'
+    default: return 'bg-gray-500 border-gray-500'
+  }
+}
+
+const getUserRoleClass = (role) => {
+  switch(role) {
+    case 'client': return 'text-blue-700'
+    case 'provider': return 'text-green-700'
+    case 'admin': return 'text-purple-700'
+    default: return 'text-gray-700'
+  }
+}
+
+const getRoleBadgeClass = (role) => {
+  switch(role) {
+    case 'client': return 'bg-blue-100 text-blue-800'
+    case 'provider': return 'bg-green-100 text-green-800'
+    case 'admin': return 'bg-purple-100 text-purple-800'
+    default: return 'bg-gray-100 text-gray-800'
+  }
+}
+
+const getUserRoleText = (role) => {
+  switch(role) {
+    case 'client': return 'عميل'
+    case 'provider': return 'مزود خدمة'
+    case 'admin': return 'مدير'
+    default: return role
+  }
+}
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('ar-SA', {
     year: 'numeric',
     month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+const formatTrackingDate = (dateString) => {
+  if (!dateString) return 'لم يتم بعد'
+  return new Date(dateString).toLocaleDateString('ar-SA', {
+    year: 'numeric',
+    month: 'short',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
@@ -287,6 +438,29 @@ const handleImageError = (event) => {
   const nextSibling = target.nextElementSibling
   if (nextSibling) {
     nextSibling.style.display = 'flex'
+  }
+}
+
+const toggleOrderActivities = async () => {
+  showOrderActivities.value = !showOrderActivities.value
+  
+  if (showOrderActivities.value && orderActivities.value.length === 0) {
+    await fetchOrderActivities()
+  }
+}
+
+const fetchOrderActivities = async () => {
+  loadingActivities.value = true
+  try {
+    const orderId = route.params.id
+    const response = await api.get(`/client/orders/${orderId}/activities`)
+    orderActivities.value = response.data
+    console.log('سجل الطلب:', orderActivities.value)
+  } catch (error) {
+    console.error('فشل جلب سجل الطلب:', error)
+    alert('فشل تحميل سجل الطلب')
+  } finally {
+    loadingActivities.value = false
   }
 }
 

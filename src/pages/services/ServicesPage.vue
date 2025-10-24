@@ -151,12 +151,14 @@
 
           <!-- محتوى الخدمة -->
           <div class="p-5">
+            
             <!-- العنوان والوصف -->
             <router-link :to="`/services/${service.id}`" class="block mb-3">
               <h3 class="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-primary-600 transition-colors duration-200">
                 {{ service.title }}
               </h3>
             </router-link>
+          
             
             <p class="text-gray-600 text-sm mb-4 line-clamp-2">
               {{ service.description }}

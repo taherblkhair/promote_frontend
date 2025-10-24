@@ -1,5 +1,8 @@
 import api from './api'
 
+// في ملف providerService.js
+
+
 export const providerService = {
   // لوحة التحكم
   getDashboard() {
@@ -22,6 +25,12 @@ export const providerService = {
     }
   })
 },
+  // سجل الطلبات
+getOrderActivities(orderId) {
+    return api.get(`/provider/orders/${orderId}/activities`)
+},
+
+
  openChat: (orderId) => {
     return api.post(`/chats/open/${orderId}`);
   },
