@@ -65,9 +65,25 @@ const routes = [
   component: () => import('@/pages/Chat.vue'),
   meta: { requiresAuth: true }
 },
+// في ملف router/index.js
 
+{
+    path: '/portfolio/client',
+    name: 'Portfolio',
+    component: () => import('@/pages/client/PortfolioPage.vue'),
+    meta: { requiresAuth: true, allowedRoles: ['client'] }
+  },
+{
+  path: '/portfolio/:id',
+  name: 'PortfolioDetail',
+  component: () => import('@/pages/client/PortfolioDeatails.vue')
+},
 
-
+{
+  path: '/client/provider/:providerId',
+  name: 'ProviderPortfolio',
+  component: () => import('@/pages/client/ProviderPortfolioView.vue')
+},
 
   {
     path: '/services',
